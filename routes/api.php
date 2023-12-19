@@ -13,3 +13,8 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::post("/rabbit", function () {
+    $publisher = new \App\Services\RabbitService();
+
+    $publisher->publish(json_encode(['user'=> 1, 'value' => 15]));
+});
