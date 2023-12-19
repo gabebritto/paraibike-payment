@@ -12,3 +12,11 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+Route::get('/', function () {
+    return response()->json([
+        'success' => true,
+        'message' => 'Pagamento realizado com sucesso!',
+        'status' => \Symfony\Component\HttpFoundation\Response::HTTP_OK
+    ]);
+})->name('home');

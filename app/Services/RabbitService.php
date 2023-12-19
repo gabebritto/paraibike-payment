@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\User;
+use App\Notifications\CheckoutCreatedNotification;
 use Exception;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
+use Stripe\Stripe;
 
 class RabbitService
 {
@@ -33,7 +36,19 @@ class RabbitService
         $connection = new AMQPStreamConnection(config('services.rabbit.host'), config('services.rabbit.port'), config('services.rabbit.user'), config('services.rabbit.password'));
         $channel = $connection->channel();
         $callback = function ($msg) {
-            echo ' [x] Received ', $msg->body, "\n";
+            $decoded = json_decode($msg->body);
+            echo ' [x] Received ', $decoded->user->email, "\n";
+
+            $user = User::where('email', $decoded->user->email)->first();
+
+            if ($user) {
+                echo ' [ ] Processing checkout', "\n";
+                $user->createOrGetStripeCustomer();
+                $checkout = $user->checkout([config('services.stripe.credit') => (int) $decoded->value])->toArray();
+
+                $user->notify(new CheckoutCreatedNotification(['url' => $checkout['url'], 'name' => $user->name, 'credits' => (int) $decoded->value]));
+                echo ' [x] Checkout processed and sent to email', "\n";
+            }
         };
         $channel->queue_declare('payments', false, false, false, false);
         $channel->basic_consume('payments', '', false, true, false, false, $callback);

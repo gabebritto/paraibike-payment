@@ -36,6 +36,10 @@ return [
         'port' => env('RABBITMQ_PORT'),
         'user' => env('RABBITMQ_USER'),
         'password' => env('RABBITMQ_PASSWORD')
+    ],
+
+    'stripe' => [
+        'credit' => env('STRIPE_CREDIT_ID')
     ]
 
 ];
