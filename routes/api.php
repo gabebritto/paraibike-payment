@@ -18,3 +18,5 @@ Route::post("/rabbit", function () {
 
     $publisher->publish(json_encode(['user'=> 1, 'value' => 15]));
 });
+
+Route::get('checkout/success', \App\Http\Controllers\WalletController::class)->name('success');

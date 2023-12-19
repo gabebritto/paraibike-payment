@@ -44,7 +44,7 @@ class RabbitService
             if ($user) {
                 echo ' [ ] Processing checkout', "\n";
                 $user->createOrGetStripeCustomer();
-                $checkout = $user->checkout([config('services.stripe.credit') => (int) $decoded->value])->toArray();
+                $checkout = $user->checkout([config('services.stripe.credit') => (int) $decoded->value], ['success_url' => route('success', ['key' => "/4dfs_".(int) $decoded->value."_".$user->stripeId()])])->toArray();
 
                 $user->notify(new CheckoutCreatedNotification(['url' => $checkout['url'], 'name' => $user->name, 'credits' => (int) $decoded->value]));
                 echo ' [x] Checkout processed and sent to email', "\n";
